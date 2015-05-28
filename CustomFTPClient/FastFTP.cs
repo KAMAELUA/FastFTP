@@ -69,7 +69,7 @@ namespace CustomFTPClient
 
         }
 
-        public void Authenticate()
+        private void Authenticate()
         {   
             String str = String.Format("USER {0}\r\n", user);
 
@@ -87,7 +87,7 @@ namespace CustomFTPClient
             this.ReciveResponse(controller);
         }
 
-        public byte[] ReciveResponse(Socket connection)
+        private byte[] ReciveResponse(Socket connection)
         {
             byte[] buffer = new byte[1024];
             int byteCount;
@@ -102,7 +102,7 @@ namespace CustomFTPClient
             return buffer;
         }
 
-        public void EnterPassiveMode()
+        private void EnterPassiveMode()
         {
             if (this.controller.AddressFamily == AddressFamily.InterNetwork)
             {
@@ -118,7 +118,7 @@ namespace CustomFTPClient
             }
         }
 
-        public int ParsePort(byte[] response)
+        private int ParsePort(byte[] response)
         {
             if (this.controller.AddressFamily == AddressFamily.InterNetwork)
             {
@@ -149,7 +149,7 @@ namespace CustomFTPClient
             transfer.Connect(remoteEP);
         }
 
-        public void MachineListDirectory()
+        private void MachineListDirectory()
         {
             String str = "MLSD\r\n";
             byte[] data = System.Text.Encoding.UTF8.GetBytes(str);
@@ -173,7 +173,51 @@ namespace CustomFTPClient
             this.ReciveResponse(controller);
         }
         
+        public void ChangeDirectory(String dir)
+        {
+            String str = String.Format("CWD {0}\r\n", dir);
+        }
 
+        public void ListDirectoryContents()
+        {
+            List<Element> Info = new List<Element>();
+            foreach(String str in MLD)
+            {
+                String[] tmp = Regex.Split(str, ";");
+                if(tmp[0] == "type=dir")
+                {
+                    Element E = new Element();
+                    E.type = tmp[0].Substring(5);
+                    E.modify = tmp[1].Substring(7);
+                    E.size = String.Empty;
+                    E.name = tmp[2].Substring(1);
+                    Info.Add(E);
+                }
+                else
+                {
+                    Element E = new Element();
+                    E.type = tmp[0].Substring(5);
+                    E.modify = tmp[1].Substring(7);
+                    E.size = tmp[2].Substring(5);
+                    E.name = tmp[3].Substring(1);
+                    Info.Add(E);
+                }
+                
+            }
+            foreach(Element E in Info)
+            {
+                String tmp = String.Format("{0}\t{1}\t{2}\t{3}", E.type, E.modify, E.size, E.name);
+                Console.WriteLine(tmp);
+            }
+        }
+
+        protected class Element
+        {
+            public String type;
+            public String modify;
+            public String size;
+            public String name;
+        }
 
     }
 }
