@@ -52,19 +52,17 @@ namespace CustomFTPClient
 
             controller.Connect(remoteEP);
 
-            this.ReciveResponse(controller);
+            this.ReciveResponse(controller); //Получаем "Welcome message"
 
+            this.Authenticate(); //Проходим аутентификацию
 
-            this.Authenticate();
+            this.EnterPassiveMode(); //Переход в пассивный режим
 
-            this.EnterPassiveMode();
-
-            //Console.WriteLine(this.ParsePort(this.ReciveResponse()));
-
+            //Устанавливаем соединение пересылки данных
             int transferPort = this.ParsePort(this.ReciveResponse(controller));
             this.EstablishTransfer(transferPort);
-            //this.ReciveResponse(this.transfer);
 
+            //Получение текущей дерриктории и списка файлов/папок
             this.MachineListDirectory();
             
 
