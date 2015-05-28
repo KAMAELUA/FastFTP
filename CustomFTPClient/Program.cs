@@ -14,17 +14,28 @@ namespace CustomFTPClient
         static void Main(string[] args)
         {
             client = new FastFTP("localhost");
-            /*String pattern = @"227[\w\s]*\(\d{0,3},\d{0,3},\d{0,3},\d{0,3},(\d{0,3}),(\d{0,3})\)";
-            String str = "227 Entering Passive Mode (127,0,0,1,234,241)";
-            Match m = Regex.Match(str, pattern);
-
-            Console.WriteLine(m.Groups[1]);*/
 
             do
             {
+                //client.ListDirectoryContents();
                 command = Console.ReadLine();
+                DoThis();
             }
             while (true);
+        }
+
+        public static void DoThis()
+        {
+            String[] cmd = command.Split(new char[]{' '});
+
+            switch (cmd[0])
+            {
+                case "ls":
+                    client.ListDirectoryContents();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
