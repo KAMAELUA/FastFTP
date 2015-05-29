@@ -64,8 +64,6 @@ namespace CustomFTPClient
 
             //Получение текущей дерриктории и списка файлов/папок
             this.MachineListDirectory();
-            
-
 
         }
 
@@ -87,13 +85,13 @@ namespace CustomFTPClient
             this.ReciveResponse(controller);
         }
 
-        private byte[] ReciveResponse(Socket connection)
+        private byte[] ReciveResponse(Socket connection, bool debug = false)
         {
             byte[] buffer = new byte[1024];
             int byteCount;
             byteCount = connection.Receive(buffer, SocketFlags.None);
 
-            if (byteCount > 0)
+            if (byteCount > 0 && debug)
             {
                 Debug.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteCount));
                 Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteCount));
@@ -158,9 +156,8 @@ namespace CustomFTPClient
             this.ReciveResponse(controller);
             byte[] response = this.ReciveResponse(transfer);
             String tmp = System.Text.Encoding.UTF8.GetString(response);
-
+            
             String[] tmp_mld = Regex.Split(tmp, "\r\n");
-
 
 
             object B = tmp_mld.Take(tmp_mld.Count()-1);
@@ -183,15 +180,7 @@ namespace CustomFTPClient
             //Устанавливаем соединение пересылки данных
             int transferPort = this.ParsePort(this.ReciveResponse(controller));
             this.EstablishTransfer(transferPort);
-
-
-            //controller.Send(System.Text.Encoding.UTF8.GetBytes(str));
-
             
-            ReciveResponse(controller);
-            ReciveResponse(transfer);
-            
-
             MachineListDirectory();
         }
 
