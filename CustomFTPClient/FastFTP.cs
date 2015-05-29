@@ -23,7 +23,7 @@ namespace CustomFTPClient
         private Socket controller; //Управляющее соединение
         private Socket transfer; //Соединение передачи данных
 
-        private String CD; //Current directory
+        private String CD = "/"; //Current directory
         private String[] MLD; //Machine list directory
 
 
@@ -175,6 +175,16 @@ namespace CustomFTPClient
             String str = String.Format("CWD {0}\r\n", dir);
             controller.Send(System.Text.Encoding.UTF8.GetBytes(str));
             ReciveResponse(controller);
+
+            if(dir.ElementAt(0) == '/')
+            {
+                this.CD = dir;
+            }
+            else
+            {
+                CD += '/' + dir;
+            }
+
             this.EnterPassiveMode(); //Переход в пассивный режим
 
             //Устанавливаем соединение пересылки данных
