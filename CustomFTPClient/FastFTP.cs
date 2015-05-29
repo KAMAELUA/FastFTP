@@ -149,9 +149,9 @@ namespace CustomFTPClient
             transfer.Connect(remoteEP);
         }
 
-        private void MachineListDirectory()
+        private void MachineListDirectory(String dir = "")
         {
-            String str = "MLSD\r\n";
+            String str = String.Format("MLSD{0}\r\n", " "+dir);
             byte[] data = System.Text.Encoding.UTF8.GetBytes(str);
             controller.Send(data, SocketFlags.None);
             
@@ -173,9 +173,26 @@ namespace CustomFTPClient
             this.ReciveResponse(controller);
         }
         
-        public void ChangeDirectory(String dir)
+        public void ChangeDirectoryTo(String dir)
         {
             String str = String.Format("CWD {0}\r\n", dir);
+            controller.Send(System.Text.Encoding.UTF8.GetBytes(str));
+            ReciveResponse(controller);
+            this.EnterPassiveMode(); //Переход в пассивный режим
+
+            //Устанавливаем соединение пересылки данных
+            int transferPort = this.ParsePort(this.ReciveResponse(controller));
+            this.EstablishTransfer(transferPort);
+
+
+            //controller.Send(System.Text.Encoding.UTF8.GetBytes(str));
+
+            
+            ReciveResponse(controller);
+            ReciveResponse(transfer);
+            
+
+            MachineListDirectory();
         }
 
         public void ListDirectoryContents()

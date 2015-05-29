@@ -33,6 +33,9 @@ namespace CustomFTPClient
                 case "ls":
                     client.ListDirectoryContents();
                     break;
+                case "cd":
+                    client.ChangeDirectoryTo(cmd[1]);
+                    break;
                 default:
                     break;
             }
