@@ -283,6 +283,85 @@ namespace CustomFTPClient
             }
         }
 
+        public void UploadFile(String path)
+        {
+            FileInfo fileInfo = new FileInfo(path);
+            String query;
+            query = String.Format("CWD {0}\r\n", CD);
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+            
+            query = "TYPE i\r\n";
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+
+            EnterPassiveMode();
+            int port = ParsePort(ReciveResponse(controller));
+            EstablishTransfer(port);
+
+            query = String.Format("STOR {0}\r\n", fileInfo.Name);
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+
+            transfer.SendFile(fileInfo.FullName);
+            transfer.Close();
+            ReciveResponse(controller, true);
+
+            EnterPassiveMode();
+            port = ParsePort(ReciveResponse(controller));
+            EstablishTransfer(port);
+
+            MachineListDirectory(CD);
+        }
+
+        public void DownloadFile(String file, String localDirectory)
+        {
+            String query;
+            query = String.Format("CWD {0}\r\n", CD);
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+
+            query = "TYPE i\r\n";
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+
+            EnterPassiveMode();
+            int port = ParsePort(ReciveResponse(controller));
+            EstablishTransfer(port);
+
+            query = String.Format("RETR {0}\r\n", file);
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            String filePath = localDirectory + '\\' + file;
+            using (var output = File.Create(filePath))
+            {
+                while ((bytesRead = transfer.Receive(buffer, buffer.Length, SocketFlags.None)) > 0)
+                {
+                    output.Write(buffer, 0, bytesRead);
+                }
+            }
+
+            ReciveResponse(controller, true);
+
+        }
+
+        public void DeleteFile(String file)
+        {
+            String query;
+            query = String.Format("DELE {0}\r\n", file);
+
+            controller.Send(Encoding.UTF8.GetBytes(query));
+            ReciveResponse(controller, true);
+
+            EnterPassiveMode();
+            int port = ParsePort(ReciveResponse(controller));
+            EstablishTransfer(port);
+            MachineListDirectory(CD);
+
+        }
+
         public String[] listDirectoryContents
         {
             get
