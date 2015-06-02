@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,11 +12,14 @@ using System.Threading.Tasks;
 
 namespace CustomFTPClient
 {
-    class FastFTP
+    public class FastFTP
     {
         public String host;
         public String user;
         public String pass;
+
+        public MemoryStream consoleLog = new MemoryStream();
+        private StreamWriter logWriter;
 
         public bool isAnonymous = false;
 
@@ -26,6 +30,11 @@ namespace CustomFTPClient
         private String CD = "/"; //Current directory
         private String[] MLD; //Machine list directory
 
+        public String currentDirectory
+        {
+            set { CD = value;}
+            get { return CD;}
+        }
 
         public FastFTP(String _host, String _user, String _pass)
         {
@@ -33,17 +42,27 @@ namespace CustomFTPClient
             user = _user;
             pass = _pass;
 
-            
+            logWriter =  new StreamWriter(consoleLog);
         }
 
-        public FastFTP(String _host, int port = 21)
+        public FastFTP()
+        {
+
+            logWriter = new StreamWriter(consoleLog);   
+
+        }
+
+        public void Init(String _host, int port = 21)
         {
             host = _host;
             isAnonymous = true;
 
             user = "anonymous";
             pass = "";
+        }
 
+        public void Connect()
+        {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(host);
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, 21);
@@ -52,7 +71,7 @@ namespace CustomFTPClient
 
             controller.Connect(remoteEP);
 
-            this.ReciveResponse(controller); //Получаем "Welcome message"
+            this.ReciveResponse(controller, true); //Получаем "Welcome message"
 
             this.Authenticate(); //Проходим аутентификацию
 
@@ -64,7 +83,6 @@ namespace CustomFTPClient
 
             //Получение текущей дерриктории и списка файлов/папок
             this.MachineListDirectory();
-
         }
 
         private void Authenticate()
@@ -75,17 +93,17 @@ namespace CustomFTPClient
             byte[] data = System.Text.Encoding.UTF8.GetBytes(str);
             controller.Send(data, SocketFlags.None);
 
-            this.ReciveResponse(controller);
+            this.ReciveResponse(controller, true);
 
             str = String.Format("PASS {0}\r\n", pass);
 
             data = System.Text.Encoding.UTF8.GetBytes(str);
             controller.Send(data, SocketFlags.None);
 
-            this.ReciveResponse(controller);
+            this.ReciveResponse(controller, true);
         }
 
-        private byte[] ReciveResponse(Socket connection, bool debug = false)
+        private byte[] ReciveResponse(Socket connection, bool log = false, bool debug = false)
         {
             byte[] buffer = new byte[1024];
             int byteCount;
@@ -96,8 +114,45 @@ namespace CustomFTPClient
                 Debug.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteCount));
                 Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteCount));
             }
+            if (byteCount > 0 && log)
+            {
+                consoleLog.Position = consoleLog.Length;
+                this.logWriter.WriteLine(Encoding.UTF8.GetString(buffer, 0, byteCount));
+                this.logWriter.Flush();
+                consoleLog.Position = 0;
+            }
 
             return buffer;
+        }
+
+        public String logLine
+        {
+            get
+            {
+                String tmp;                
+                StreamReader streamReader = new StreamReader(consoleLog);
+
+                tmp = streamReader.ReadLine();
+
+                if (tmp == null) return String.Empty;
+
+                int countBytes = Encoding.UTF8.GetBytes(tmp).Count();
+                byte[] streamData = consoleLog.ToArray().Skip(countBytes+2).ToArray();
+
+                String byteData = Encoding.UTF8.GetString(streamData);
+
+                consoleLog = new MemoryStream();
+
+                logWriter = new StreamWriter(consoleLog);
+
+                logWriter.Write(byteData);
+                logWriter.Flush();
+                consoleLog.Position = 0;
+                
+
+
+                return tmp;
+            }
         }
 
         private void EnterPassiveMode()
@@ -153,7 +208,7 @@ namespace CustomFTPClient
             byte[] data = System.Text.Encoding.UTF8.GetBytes(str);
             controller.Send(data, SocketFlags.None);
             
-            this.ReciveResponse(controller);
+            this.ReciveResponse(controller, true);
             byte[] response = this.ReciveResponse(transfer);
             String tmp = System.Text.Encoding.UTF8.GetString(response);
             
@@ -170,11 +225,12 @@ namespace CustomFTPClient
             this.ReciveResponse(controller);
         }
         
-        public void ChangeDirectoryTo(String dir)
+        public void ChangeDirectoryTo(String dir = null)
         {
+            if (dir == null) dir = CD;
             String str = String.Format("CWD {0}\r\n", dir);
             controller.Send(System.Text.Encoding.UTF8.GetBytes(str));
-            ReciveResponse(controller);
+            ReciveResponse(controller, true);
 
             if(dir.ElementAt(0) == '/')
             {
@@ -224,6 +280,14 @@ namespace CustomFTPClient
             {
                 String tmp = String.Format("{0}\t{1}\t{2}\t{3}", E.type, E.modify, E.size, E.name);
                 Console.WriteLine(tmp);
+            }
+        }
+
+        public String[] listDirectoryContents
+        {
+            get
+            {
+                return MLD;
             }
         }
 

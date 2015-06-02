@@ -13,11 +13,12 @@ namespace CustomFTPClient
         private static String command = String.Empty;
         static void Main(string[] args)
         {
-            client = new FastFTP("localhost");
+            client = new FastFTP();
+            client.Init("localhost");
+            client.Connect();
 
             do
             {
-                //client.ListDirectoryContents();
                 command = Console.ReadLine();
                 DoThis();
             }
