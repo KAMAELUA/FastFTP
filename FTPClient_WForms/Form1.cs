@@ -57,6 +57,7 @@ namespace FTPClient_WForms
             {
                 remoteFolder.Rows[0].Visible = false;
             }
+
             List<Element> Info = new List<Element>();
 
             foreach (String str in ftpConnection.listDirectoryContents)
@@ -105,31 +106,54 @@ namespace FTPClient_WForms
 
         public void showLocalFolder()
         {
-            DirectoryInfo DInfo = new DirectoryInfo(localDirectory);
             String[] dirList = Directory.GetDirectories(localDirectory);
             String[] fileList = Directory.GetFiles(localDirectory);
 
             localFolders.Rows.Clear();
             localFolders.Rows.Add();
             localFolders.Rows[0].Cells[0].Value = "..";
-            List<Element> Info = new List<Element>();
-            int iter = 0;
+            localFolders.Rows[0].Frozen = true;
+
+ 
             foreach (String dir in dirList)
             {
                 DirectoryInfo info = new DirectoryInfo(dir);
-                localFolders.Rows.Add();
-                localFolders.Rows[++iter].Cells[0].Value = "[ " + info.Name + " ]";
-                localFolders.Rows[iter].Cells[2].Value = "dir";
+
+                DataGridViewRow row = new DataGridViewRow();
+                DataGridViewCell nameCell = new DataGridViewTextBoxCell();
+                DataGridViewCell sizeCell = new DataGridViewTextBoxCell();
+                DataGridViewCell typeCell = new DataGridViewTextBoxCell();
+
+                nameCell.Value = "[ " + info.Name + " ]";
+                sizeCell.Value = String.Empty;
+                typeCell.Value = "dir";
+
+                row.Cells.Add(nameCell);
+                row.Cells.Add(sizeCell);
+                row.Cells.Add(typeCell);
+
+                row.Frozen = true;
+                localFolders.Rows.Add(row);
             }
 
             foreach (String file in fileList)
             {
                 FileInfo info = new FileInfo(file);
-                localFolders.Rows.Add();
-                localFolders.Rows[++iter].Cells[0].Value = info.Name;
-                localFolders.Rows[iter].Cells[1].Value = info.Length;
-                localFolders.Rows[iter].Cells[2].Value = "file";
+                
+                DataGridViewRow row = new DataGridViewRow();
+                DataGridViewCell nameCell = new DataGridViewTextBoxCell();
+                DataGridViewCell sizeCell = new DataGridViewTextBoxCell();
+                DataGridViewCell typeCell = new DataGridViewTextBoxCell();
 
+                nameCell.Value = info.Name;
+                sizeCell.Value = info.Length.ToString();
+                typeCell.Value = "file";
+
+                row.Cells.Add(nameCell);
+                row.Cells.Add(sizeCell);
+                row.Cells.Add(typeCell);
+
+                localFolders.Rows.Add(row);
             }
         }
 
@@ -169,9 +193,11 @@ namespace FTPClient_WForms
 
         private void localFolders_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            if (e.Button != MouseButtons.Left) return;
+
             DataGridView DGV = (DataGridView)sender;
             int rowIndex = DGV.HitTest(e.X, e.Y).RowIndex;
-            if (rowIndex != 0 && localFolders.Rows[rowIndex].Cells[2].Value.ToString() == "dir")
+            if (rowIndex != 0 && localFolders.Rows[rowIndex].Cells[2].Value != null && localFolders.Rows[rowIndex].Cells[2].Value.ToString() == "dir")
             {
                 localDirectory += String.Concat('\\', localFolders.Rows[rowIndex].Cells[0].Value.ToString().Substring(2, localFolders.Rows[rowIndex].Cells[0].Value.ToString().Length - 4));
                 showLocalFolder();
@@ -187,9 +213,10 @@ namespace FTPClient_WForms
 
         private void remoteFolder_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            if (e.Button != MouseButtons.Left) return;
             DataGridView DGV = (DataGridView)sender;
             int rowIndex = DGV.HitTest(e.X, e.Y).RowIndex;
-            if (rowIndex > 0 && remoteFolder.Rows[rowIndex].Cells[2].Value.ToString() == "dir")
+            if (rowIndex > 0 && DGV.Rows[rowIndex].Cells[2].Value != null && remoteFolder.Rows[rowIndex].Cells[2].Value.ToString() == "dir")
             {
                 String dir = remoteFolder.Rows[rowIndex].Cells[0].Value.ToString();
                 dir = dir.Substring(2, dir.Length - 4);
@@ -211,5 +238,98 @@ namespace FTPClient_WForms
 
             }
         }
+
+        private void localFolders_MouseClick(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Right)
+            {
+                DataGridView DGV = (DataGridView)sender;
+                int rowIndex = DGV.HitTest(e.X, e.Y).RowIndex;
+                if (rowIndex > 0 && DGV.Rows[rowIndex].Cells[2].Value != null && DGV.Rows[rowIndex].Cells[2].Value.ToString() == "file")
+                {
+
+                    DGV.ClearSelection();
+                    DGV.Rows[rowIndex].Selected = true;
+
+                    ContextMenu CM = new ContextMenu();
+                    MenuItem MI;
+                    MI = new MenuItem("Загрузить", local_contextMenuItemUploadClick);
+                    MI.Name = DGV.Rows[rowIndex].Cells[0].Value.ToString();
+                    CM.MenuItems.Add(MI);
+
+                    MI = new MenuItem("Удалить", local_contextMenuItemRemoveClick);
+                    MI.Name = DGV.Rows[rowIndex].Cells[0].Value.ToString();
+                    CM.MenuItems.Add(MI);
+
+                    CM.Show(DGV, e.Location);
+                }
+
+
+            }
+            
+
+        }
+
+        private void remoteFolder_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                DataGridView DGV = (DataGridView)sender;
+                int rowIndex = DGV.HitTest(e.X, e.Y).RowIndex;
+                if (rowIndex > 0 && DGV.Rows[rowIndex].Cells[2] != null && DGV.Rows[rowIndex].Cells[2].Value.ToString() == "file")
+                {
+                    DGV.ClearSelection();
+                    DGV.Rows[rowIndex].Selected = true;
+
+                    ContextMenu CM = new ContextMenu();
+                    MenuItem MI;
+
+                    MI = new MenuItem("Скачать", remote_contextMenuItemDownloadClick);
+                    MI.Name = DGV.Rows[rowIndex].Cells[0].Value.ToString();
+                    CM.MenuItems.Add(MI);
+
+                    MI = new MenuItem("Удалить", remote_contextMenuItemRemoveClick);
+                    MI.Name = DGV.Rows[rowIndex].Cells[0].Value.ToString();
+                    CM.MenuItems.Add(MI);
+                    
+                    CM.Show(DGV, e.Location);
+                }
+
+
+            }
+        }
+        private void local_contextMenuItemUploadClick(object sender, EventArgs e)
+        {
+            
+            MenuItem MI = (MenuItem)sender;
+            ftpConnection.UploadFile(localDirectory + '\\' + MI.Name);
+            showRemoteFolder();
+        }
+
+        private void remote_contextMenuItemDownloadClick(object sender, EventArgs e)
+        {
+
+            MenuItem MI = (MenuItem)sender;
+            ftpConnection.DownloadFile(MI.Name, localDirectory);
+            showLocalFolder();
+        }
+
+        private void local_contextMenuItemRemoveClick(object sender, EventArgs e)
+        {
+
+            MenuItem MI = (MenuItem)sender;
+            File.Delete(localDirectory + '\\' + MI.Name);
+            showLocalFolder();
+        }
+
+        private void remote_contextMenuItemRemoveClick(object sender, EventArgs e)
+        {
+
+            MenuItem MI = (MenuItem)sender;
+            ftpConnection.DeleteFile(MI.Name);
+            showRemoteFolder();
+        }
+        
+        
     }
 }

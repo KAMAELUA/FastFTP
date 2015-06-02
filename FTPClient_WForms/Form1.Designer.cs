@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.connect_button = new System.Windows.Forms.Button();
             this.port_label = new System.Windows.Forms.Label();
@@ -44,13 +44,13 @@
             this.consoleLog = new System.Windows.Forms.RichTextBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.localFolders = new System.Windows.Forms.DataGridView();
+            this.name_local = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.size_local = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.local_type = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.remoteFolder = new System.Windows.Forms.DataGridView();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.size = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.type = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.name_local = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.size_local = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.local_type = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -166,9 +166,13 @@
             // 
             this.consoleLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.consoleLog.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.consoleLog.CausesValidation = false;
+            this.consoleLog.DetectUrls = false;
             this.consoleLog.Location = new System.Drawing.Point(4, 4);
             this.consoleLog.Name = "consoleLog";
             this.consoleLog.ReadOnly = true;
+            this.consoleLog.ShortcutsEnabled = false;
             this.consoleLog.Size = new System.Drawing.Size(678, 96);
             this.consoleLog.TabIndex = 0;
             this.consoleLog.Text = "";
@@ -195,6 +199,9 @@
             // 
             this.localFolders.AllowUserToAddRows = false;
             this.localFolders.AllowUserToDeleteRows = false;
+            this.localFolders.AllowUserToResizeRows = false;
+            this.localFolders.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.localFolders.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.localFolders.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.localFolders.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.name_local,
@@ -205,53 +212,13 @@
             this.localFolders.Name = "localFolders";
             this.localFolders.ReadOnly = true;
             this.localFolders.RowHeadersVisible = false;
+            this.localFolders.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.localFolders.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.localFolders.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.localFolders.Size = new System.Drawing.Size(336, 174);
             this.localFolders.TabIndex = 0;
+            this.localFolders.MouseClick += new System.Windows.Forms.MouseEventHandler(this.localFolders_MouseClick);
             this.localFolders.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.localFolders_MouseDoubleClick);
-            // 
-            // remoteFolder
-            // 
-            this.remoteFolder.AllowUserToAddRows = false;
-            this.remoteFolder.AllowUserToDeleteRows = false;
-            this.remoteFolder.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.remoteFolder.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.name,
-            this.size,
-            this.type});
-            this.remoteFolder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.remoteFolder.Location = new System.Drawing.Point(345, 3);
-            this.remoteFolder.Name = "remoteFolder";
-            this.remoteFolder.ReadOnly = true;
-            this.remoteFolder.RowHeadersVisible = false;
-            this.remoteFolder.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.remoteFolder.Size = new System.Drawing.Size(337, 174);
-            this.remoteFolder.TabIndex = 1;
-            this.remoteFolder.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.remoteFolder_MouseDoubleClick);
-            // 
-            // name
-            // 
-            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.name.HeaderText = "Название";
-            this.name.Name = "name";
-            this.name.ReadOnly = true;
-            // 
-            // size
-            // 
-            this.size.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.size.DefaultCellStyle = dataGridViewCellStyle2;
-            this.size.HeaderText = "Размер";
-            this.size.Name = "size";
-            this.size.ReadOnly = true;
-            this.size.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.size.Width = 71;
-            // 
-            // type
-            // 
-            this.type.HeaderText = "type";
-            this.type.Name = "type";
-            this.type.ReadOnly = true;
-            this.type.Visible = false;
             // 
             // name_local
             // 
@@ -264,8 +231,8 @@
             // size_local
             // 
             this.size_local.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.size_local.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.size_local.DefaultCellStyle = dataGridViewCellStyle9;
             this.size_local.HeaderText = "Размер";
             this.size_local.Name = "size_local";
             this.size_local.ReadOnly = true;
@@ -278,6 +245,57 @@
             this.local_type.Name = "local_type";
             this.local_type.ReadOnly = true;
             this.local_type.Visible = false;
+            // 
+            // remoteFolder
+            // 
+            this.remoteFolder.AllowUserToAddRows = false;
+            this.remoteFolder.AllowUserToDeleteRows = false;
+            this.remoteFolder.AllowUserToResizeRows = false;
+            this.remoteFolder.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.remoteFolder.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.remoteFolder.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.remoteFolder.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.name,
+            this.size,
+            this.type});
+            this.remoteFolder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.remoteFolder.Location = new System.Drawing.Point(345, 3);
+            this.remoteFolder.MultiSelect = false;
+            this.remoteFolder.Name = "remoteFolder";
+            this.remoteFolder.ReadOnly = true;
+            this.remoteFolder.RowHeadersVisible = false;
+            this.remoteFolder.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.remoteFolder.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.remoteFolder.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.remoteFolder.Size = new System.Drawing.Size(337, 174);
+            this.remoteFolder.TabIndex = 1;
+            this.remoteFolder.MouseClick += new System.Windows.Forms.MouseEventHandler(this.remoteFolder_MouseClick);
+            this.remoteFolder.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.remoteFolder_MouseDoubleClick);
+            // 
+            // name
+            // 
+            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.name.HeaderText = "Название";
+            this.name.Name = "name";
+            this.name.ReadOnly = true;
+            // 
+            // size
+            // 
+            this.size.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.size.DefaultCellStyle = dataGridViewCellStyle10;
+            this.size.HeaderText = "Размер";
+            this.size.Name = "size";
+            this.size.ReadOnly = true;
+            this.size.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.size.Width = 71;
+            // 
+            // type
+            // 
+            this.type.HeaderText = "type";
+            this.type.Name = "type";
+            this.type.ReadOnly = true;
+            this.type.Visible = false;
             // 
             // Form1
             // 
